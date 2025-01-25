@@ -1,0 +1,14 @@
+{{- if .Values.cache.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "inadyn.fullname" . }}-cache
+  labels:
+      {{- include "inadyn.configLabels" . | nindent 4 }}
+spec:
+    storageClassName: {{ .Values.cache.storageClass }}
+    accessModes: [ {{ .Values.cache.accessMode| quote }} ]
+    resources:
+      requests:
+        storage: {{ .Values.cache.size | quote }}
+{{- end }}

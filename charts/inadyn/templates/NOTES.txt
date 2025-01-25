@@ -1,0 +1,10 @@
+1. Get the cronjob
+
+```bash
+kubectl get cronjobs.batch
+```
+
+2. Get the logs of the cronjob
+
+```bash
+
