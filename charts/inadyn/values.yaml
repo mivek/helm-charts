@@ -1,0 +1,35 @@
+# Default values for inadyn.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  # -- The inadyn image to use.
+  repository: troglobit/inadyn
+  # -- This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# -- This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+# -- The configuration for Inadyn.
+config: ""
+# -- Cron schedule for Inadyn.
+schedule: "*/5 * * * *"
+# -- The timezone for the cron schedule.
+timeZone: "UTC"
+
+# -- Cache volume for Inadyn. If enabled a PVC will be created.
+cache:
+  enabled: true
+  size: 50Mi
+  storageClass: ""
+  accessMode: ReadWriteOnce
+
+# -- This creates a secret fpr Inadyn. The secrets are then usable in the container as environment variables.
+secrets: {}
+
+# -- The restart policy for the cronjob.
+restartPolicy: OnFailure

@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "inadyn.fullname" . }}
+  labels:
+    {{- include "inadyn.labels" . | nindent 4 }}
+spec:
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "inadyn.labels" . | nindent 8 }}
+      name: {{ include "inadyn.fullname" . }}
+
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "inadyn.labels" . | nindent 12 }}
+
+        spec:
+          containers:
+            - name: {{ .Chart.Name }}
+              image: {{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              args:
+                - "-1"
+                {{- if .Values.cache.enabled }}
+                - "--cache-dir=/var/cache/inadyn"
+                {{- end }}
+                - "> /dev/null 2>&1"
+              {{- if .Values.secrets }}
+              envFrom:
+                - secretRef:
+                    name: {{ include "inadyn.fullname" . }}
+              {{- end }}
+              volumeMounts:
+                - mountPath: /etc/inadyn.conf
+                  subPath: inadyn.conf
+                  name: inadyn-config
+                {{- if .Values.cache.enabled }}
+                - mountPath: /var/cache/inadyn
+                  name: inadyn-cache
+                {{- end }}
+          volumes:
+            - name: inadyn-config
+              configMap:
+                name: {{ include "inadyn.fullname" . }}-config
+                items:
+                  - key: inadyn.conf
+                    path: inadyn.conf
+            {{- if .Values.cache.enabled }}
+            - name: inadyn-cache
+              persistentVolumeClaim:
+                claimName: {{ include "inadyn.fullname" . }}-cache
+            {{- end }}
+          restartPolicy: {{ .Values.restartPolicy }}
+  schedule: {{ .Values.schedule | quote}}
+  timeZone: {{ .Values.timeZone }}
+
+
